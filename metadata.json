@@ -1,0 +1,8 @@
+{
+  "name": "Copy of ROMPE EL CICLO",
+  "description": "Una aplicación premium de autoliderazgo y productividad diseñada para transformar la lectura pasiva en acción masiva diaria.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

@@ -1,0 +1,183 @@
+
+[
+  {
+    "day_id": 1,
+    "quote": "No necesitas más tiempo, necesitas más foco. Decidir es renunciar.",
+    "action_task": "Escribe en una nota la ÚNICA cosa que, si la logras hoy, hará que el día valga la pena.",
+    "is_completed": false
+  },
+  {
+    "day_id": 2,
+    "quote": "Tu primera versión va a ser mala. Ese es el precio de entrada.",
+    "action_task": "Haz algo mediocre hoy intencionalmente. Publica o envía algo sin editar.",
+    "is_completed": false
+  },
+  {
+    "day_id": 3,
+    "quote": "El miedo no se va, se atraviesa. Si esperas a no tenerlo, morirás esperando.",
+    "action_task": "Haz esa llamada o envía ese mensaje que te da náuseas solo de pensarlo.",
+    "is_completed": false
+  },
+  {
+    "day_id": 4,
+    "quote": "La preparación infinita es el escondite favorito de los cobardes.",
+    "action_task": "Cierra todos los cursos y PDFs. Ejecuta UNA cosa del último capítulo que leíste.",
+    "is_completed": false
+  },
+  {
+    "day_id": 5,
+    "quote": "Tu entorno es tu destino. Si tus amigos son mediocres, tú eres el quinto.",
+    "action_task": "Silencia hoy 3 grupos de WhatsApp o cuentas de IG que solo te roban energía.",
+    "is_completed": false
+  },
+  {
+    "day_id": 6,
+    "quote": "Vender es servir. Si tienes la cura y no la vendes, eres un egoísta.",
+    "action_task": "Pide una venta directa hoy. Sin rodeos, sin disculpas por el precio.",
+    "is_completed": false
+  },
+  {
+    "day_id": 7,
+    "quote": "La motivación es para los amateurs. Los profesionales se basan en sistemas.",
+    "action_task": "Diseña tu ritual de 'Acción Mínima' de 5 minutos para cuando no tengas ganas.",
+    "is_completed": false
+  },
+  {
+    "day_id": 8,
+    "quote": "A nadie le importa tu potencial, solo tus resultados.",
+    "action_task": "Muestra una prueba pública de lo que hiciste hoy. No hables de lo que harás mañana.",
+    "is_completed": false
+  },
+  {
+    "day_id": 9,
+    "quote": "El 'no' ya lo tienes. Solo estás peleando por el 'sí'.",
+    "action_task": "Busca un rechazo hoy intencionalmente. Pide algo que sepas que te dirán que no.",
+    "is_completed": false
+  },
+  {
+    "day_id": 10,
+    "quote": "Dormir más de la cuenta no es descanso, es escape.",
+    "action_task": "Despierta 30 minutos antes y empieza tu tarea más difícil sin mirar el móvil.",
+    "is_completed": false
+  },
+  {
+    "day_id": 11,
+    "quote": "Tu cerebro es un experto en mentirte para mantenerte a salvo.",
+    "action_task": "Identifica tu mentira favorita de hoy (ej: 'mañana empiezo') y desmóntala actuando.",
+    "is_completed": false
+  },
+  {
+    "day_id": 12,
+    "quote": "La claridad viene de la acción, no de la reflexión.",
+    "action_task": "Deja de planificar. Toma la decisión más pequeña que tengas pendiente ahora mismo.",
+    "is_completed": false
+  },
+  {
+    "day_id": 13,
+    "quote": "O controlas tu agenda o alguien más lo hará por ti.",
+    "action_task": "Bloquea 90 minutos de 'Modo Búnker' para tu proyecto principal. Cero distracciones.",
+    "is_completed": false
+  },
+  {
+    "day_id": 14,
+    "quote": "El perfeccionismo es procrastinación con traje elegante.",
+    "action_task": "Lanza esa oferta o proyecto al 80%. El mercado te dará el feedback real.",
+    "is_completed": false
+  },
+  {
+    "day_id": 15,
+    "quote": "Si no estás cansado al final del día, no estás viviendo, estás durmiendo despierto.",
+    "action_task": "Da un 10% más en tu última tarea de hoy cuando sientas que ya terminaste.",
+    "is_completed": false
+  },
+  {
+    "day_id": 16,
+    "quote": "Pedir perdón por cobrar es insultar tu propio valor.",
+    "action_task": "Revisa tus precios. Si no te asusta decirlos, están muy bajos.",
+    "is_completed": false
+  },
+  {
+    "day_id": 17,
+    "quote": "La disciplina es recordarte lo que quieres cuando el ánimo se va.",
+    "action_task": "Haz la tarea que más te pese hoy, justo en el momento en que menos ganas tengas.",
+    "is_completed": false
+  },
+  {
+    "day_id": 18,
+    "quote": "Tu pasado no es una cadena, es una lección pagada.",
+    "action_task": "Perdónate un error de la semana pasada y usa esa energía para ejecutar hoy.",
+    "is_completed": false
+  },
+  {
+    "day_id": 19,
+    "quote": "La mayoría de los problemas se resuelven con más ingresos.",
+    "action_task": "Dedica el 80% de tu jornada de hoy a actividades que generen dinero directamente.",
+    "is_completed": false
+  },
+  {
+    "day_id": 20,
+    "quote": "Quejarse es para las víctimas. Los operadores buscan soluciones.",
+    "action_task": "Prohibido quejarse hoy. Por cada problema que veas, propón tres soluciones.",
+    "is_completed": false
+  },
+  {
+    "day_id": 21,
+    "quote": "La consistencia vence al talento el 100% de las veces.",
+    "action_task": "No rompas la racha. Aunque sea 1 minuto, haz la tarea crítica hoy.",
+    "is_completed": false
+  },
+  {
+    "day_id": 22,
+    "quote": "El éxito es aburrido. Es repetir lo básico mil veces.",
+    "action_task": "Haz esa tarea repetitiva y necesaria que has estado ignorando por 'aburrida'.",
+    "is_completed": false
+  },
+  {
+    "day_id": 23,
+    "quote": "No busques aprobación de gente que no ha construido nada.",
+    "action_task": "Haz algo hoy que sepas que tus críticos odiarán.",
+    "is_completed": false
+  },
+  {
+    "day_id": 24,
+    "quote": "Tu cuerpo es el motor de tu negocio. No lo ignores.",
+    "action_task": "15 minutos de ejercicio intenso o ducha de agua fría. Rompe el estado mental.",
+    "is_completed": false
+  },
+  {
+    "day_id": 25,
+    "quote": "Mañana es la palabra favorita de los perdedores.",
+    "action_task": "Adelanta una tarea de mañana para hoy. Gánale tiempo al futuro.",
+    "is_completed": false
+  },
+  {
+    "day_id": 26,
+    "quote": "La vulnerabilidad es poder. Sé real, no perfecto.",
+    "action_task": "Comparte un fracaso real con alguien y qué aprendiste. Quítate la máscara.",
+    "is_completed": false
+  },
+  {
+    "day_id": 27,
+    "quote": "Si no mides, no controlas. Si no controlas, no escalas.",
+    "action_task": "Anota tus números de hoy: Ventas, contactos, horas de foco real.",
+    "is_completed": false
+  },
+  {
+    "day_id": 28,
+    "quote": "El cansancio es mental el 90% del tiempo.",
+    "action_task": "Cuando pienses 'estoy agotado', haz una serie de 10 flexiones y vuelve al trabajo.",
+    "is_completed": false
+  },
+  {
+    "day_id": 29,
+    "quote": "La suerte es lo que pasa cuando la preparación encuentra la oportunidad.",
+    "action_task": "Prepara hoy el terreno para una oportunidad que quieras que pase el mes que viene.",
+    "is_completed": false
+  },
+  {
+    "day_id": 30,
+    "quote": "Has completado 30 días. El ciclo se está rompiendo. No te detengas.",
+    "action_task": "Escribe tu gran victoria de este mes y define el estándar para el próximo.",
+    "is_completed": false
+  }
+]
