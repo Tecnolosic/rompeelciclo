@@ -383,7 +383,16 @@ const App: React.FC = () => {
             onTriggerMentor={handleDeepDive}
           />
         )}
-        {activeSection === AppSection.RACHA && <Stats userStats={userStats} confessions={confessions} activityLogs={[]} triggerHaptic={triggerHaptic} />}
+        {activeSection === AppSection.RACHA && (
+          <Stats
+            userStats={userStats}
+            confessions={confessions}
+            dailySparks={dailySparks}
+            interactions={interactions}
+            activityLogs={[]}
+            triggerHaptic={triggerHaptic}
+          />
+        )}
       </main>
 
       {readingPilarId !== null && (
