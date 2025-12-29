@@ -35,7 +35,10 @@ export const useSupabaseSync = () => {
             supabase.from('confessions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }),
             supabase.from('pillar_progress').select('*').eq('user_id', session.user.id),
             supabase.from('pillars').select('*').order('id'),
-            supabase.from('daily_sparks').select('*').order('date', { ascending: false }).limit(30)
+            supabase.from('pillars').select('*').order('id'),
+            supabase.from('daily_sparks').select('*').order('date', { ascending: false }).limit(30),
+            // Fetch interactions for graph (last 7 days for now, can be optimized later)
+            supabase.from('interactions').select('created_at, action_type').gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
         ]);
 
         return {
@@ -44,7 +47,8 @@ export const useSupabaseSync = () => {
             confessions: confessions || [],
             pillarProgress: pillarProgress || [],
             pillars: pillarsResult.data || [],
-            dailySparks: sparksResult.data || []
+            dailySparks: sparksResult.data || [],
+            interactions: interactionsResult.data || [] // Pass raw interactions to Stats component to process
         };
     }, [session]);
 
@@ -55,6 +59,18 @@ export const useSupabaseSync = () => {
             .update(updates)
             .eq('id', session.user.id);
         if (error) console.error('Error saving profile:', error);
+    };
+
+    const logInteraction = async (actionType: string, metadata: any = {}) => {
+        if (!session?.user?.id) return;
+        // Fire and forget - don't await to block UI
+        supabase.from('interactions').insert({
+            user_id: session.user.id,
+            action_type: actionType,
+            metadata
+        }).then(({ error }) => {
+            if (error) console.error('Error logging interaction:', error);
+        });
     };
 
     const saveGoal = async (goal: Goal) => {
@@ -118,6 +134,7 @@ export const useSupabaseSync = () => {
         saveGoal,
         saveConfession,
         savePilarProgress,
+        logInteraction,
         logout
     };
 };
