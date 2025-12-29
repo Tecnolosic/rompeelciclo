@@ -27,17 +27,16 @@ export const useSupabaseSync = () => {
             { data: goals },
             { data: confessions },
             { data: pillarProgress },
-            pillarsResult,
-            sparksResult
+            { data: pillars }, // Corrected: single pillars query
+            { data: dailySparks }, // Corrected: assign daily_sparks
+            { data: interactions } // Corrected: assign interactions
         ] = await Promise.all([
             supabase.from('profiles').select('*').eq('id', session.user.id).single(),
             supabase.from('goals').select('*').eq('user_id', session.user.id),
             supabase.from('confessions').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }),
             supabase.from('pillar_progress').select('*').eq('user_id', session.user.id),
             supabase.from('pillars').select('*').order('id'),
-            supabase.from('pillars').select('*').order('id'),
             supabase.from('daily_sparks').select('*').order('date', { ascending: false }).limit(30),
-            // Fetch interactions for graph (last 7 days for now, can be optimized later)
             supabase.from('interactions').select('created_at, action_type').gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
         ]);
 
@@ -46,9 +45,9 @@ export const useSupabaseSync = () => {
             goals: goals || [],
             confessions: confessions || [],
             pillarProgress: pillarProgress || [],
-            pillars: pillarsResult.data || [],
-            dailySparks: sparksResult.data || [],
-            interactions: interactionsResult.data || [] // Pass raw interactions to Stats component to process
+            pillars: pillars || [],
+            dailySparks: dailySparks || [],
+            interactions: interactions || []
         };
     }, [session]);
 
