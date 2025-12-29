@@ -1,11 +1,11 @@
 
-import React, { useState, useCallback } from 'react';
-import { Target, User, Shield, ArrowRight, CheckSquare, Square, Plus, Trash2, Trophy, Star } from 'lucide-react';
-import { UserIdentity, Goal, SubTask } from '../types';
+import React, { useState } from 'react';
+import { Target, User, Shield, ArrowRight, CheckSquare, Square, Plus, Trash2, Trophy, Star, Lock, Unlock, PenLine } from 'lucide-react';
+import { UserIdentity, Goal } from '../types';
 
 interface IdentityMapProps {
   identity: UserIdentity;
-  setIdentity: React.Dispatch<React.SetStateAction<UserIdentity>>;
+  setIdentity: (identity: UserIdentity) => void;
   goals: Goal[];
   updateGoal: (goal: Goal) => void;
   triggerHaptic: (type?: 'light' | 'medium' | 'heavy') => void;
@@ -14,9 +14,14 @@ interface IdentityMapProps {
 const IdentityMap: React.FC<IdentityMapProps> = ({ identity, setIdentity, goals, updateGoal, triggerHaptic }) => {
   const [activeGoalId, setActiveGoalId] = useState<string | null>(null);
   const [newTaskName, setNewTaskName] = useState('');
+  // If identity has content, default to locked/sealed mode logic could be applied, 
+  // but for now let's default to unlocked if empty, locked if full? 
+  // User asked for "Edit option". Let's default to verified user needs to unlock.
+  const [isLocked, setIsLocked] = useState(!!identity.north_star);
 
   const handleIdentityChange = (field: keyof UserIdentity, value: string) => {
-    setIdentity(prev => ({ ...prev, [field]: value }));
+    // FIX: Pass the new object directly so App.tsx's wrapper can detect it and save to Supabase
+    setIdentity({ ...identity, [field]: value });
   };
 
   const toggleSubTask = (goal: Goal, index: number) => {
@@ -51,30 +56,59 @@ const IdentityMap: React.FC<IdentityMapProps> = ({ identity, setIdentity, goals,
     updateGoal({ ...goal, sub_tasks: newSubTasks, progress_percentage: progress });
   };
 
+  const handleSealDestiny = () => {
+    if (isLocked) {
+      // Unlock logic
+      triggerHaptic('medium');
+      setIsLocked(false);
+    } else {
+      // Seal logic
+      triggerHaptic('heavy');
+      setIsLocked(true);
+      // Force trigger save just in case (though onChange handles it)
+      setIdentity({ ...identity });
+    }
+  };
+
   return (
     <div className="p-6 space-y-12 animate-in fade-in slide-in-from-bottom-4 pb-32">
       {/* HEADER TÁCTICO */}
-      <div>
-        <h2 className="text-3xl font-black text-white mb-2 uppercase tracking-tighter">CENTRO DE MANDO</h2>
-        <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">Tu visión es tu mapa. Tu acción es tu brújula.</p>
+      <div className="flex justify-between items-end">
+        <div>
+          <h2 className="text-3xl font-black text-white mb-2 uppercase tracking-tighter">CENTRO DE MANDO</h2>
+          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">Tu visión es tu mapa. Tu acción es tu brújula.</p>
+        </div>
+
+        {/* EDIT/LOCK TOGGLE */}
+        <button
+          onClick={handleSealDestiny}
+          className={`px-4 py-2 rounded-full border flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all scale-on-tap ${isLocked ? 'items-center bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-white' : 'bg-[#FFD700]/10 border-[#FFD700] text-[#FFD700]'}`}
+        >
+          {isLocked ? (
+            <><PenLine size={12} /> MODIFICAR</>
+          ) : (
+            <><Unlock size={12} /> EDICIÓN ACTIVA</>
+          )}
+        </button>
       </div>
 
       {/* BLOQUE 1: LA ESTRELLA NORTE */}
-      <section className="relative group">
+      <section className={`relative group transition-all duration-500 ${isLocked ? 'opacity-90' : 'opacity-100'}`}>
         <div className="absolute -inset-1 bg-gradient-to-r from-[#FFD700] to-transparent opacity-10 rounded-3xl blur-xl group-hover:opacity-30 transition-opacity duration-700"></div>
-        <div className="relative bg-zinc-900/80 p-8 rounded-3xl border border-[#FFD700]/10 overflow-hidden shadow-2xl">
+        <div className={`relative bg-zinc-900/80 p-8 rounded-3xl border overflow-hidden shadow-2xl transition-colors ${isLocked ? 'border-zinc-800' : 'border-[#FFD700]/30'}`}>
           <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.1] group-hover:scale-110 transition-all duration-700">
             <Star className="text-[#FFD700]" size={100} />
           </div>
           <div className="flex items-center gap-2 mb-4">
-            <div className="h-2 w-2 rounded-full bg-[#FFD700] animate-pulse"></div>
-            <h3 className="font-black text-xs text-[#FFD700] uppercase tracking-[0.2em]">LA ESTRELLA NORTE</h3>
+            <div className={`h-2 w-2 rounded-full animate-pulse ${isLocked ? 'bg-zinc-600' : 'bg-[#FFD700]'}`}></div>
+            <h3 className={`font-black text-xs uppercase tracking-[0.2em] ${isLocked ? 'text-zinc-500' : 'text-[#FFD700]'}`}>LA ESTRELLA NORTE</h3>
           </div>
           <h4 className="text-[10px] text-zinc-500 font-bold uppercase mb-2">¿POR QUÉ HAGO TODO ESTO?</h4>
           <textarea
             value={identity.north_star}
             onChange={(e) => handleIdentityChange('north_star', e.target.value)}
-            className="w-full bg-transparent border-none p-0 text-xl font-black text-white focus:ring-0 placeholder-zinc-800 resize-none h-24 scrollbar-hide"
+            disabled={isLocked}
+            className={`w-full bg-transparent border-none p-0 text-xl font-black focus:ring-0 placeholder-zinc-800 resize-none h-24 scrollbar-hide ${isLocked ? 'text-zinc-300' : 'text-white'}`}
             placeholder="Escribe tu misión innegociable..."
           />
         </div>
@@ -83,24 +117,26 @@ const IdentityMap: React.FC<IdentityMapProps> = ({ identity, setIdentity, goals,
       {/* BLOQUE 2: TRANSICIÓN DE IDENTIDAD */}
       <section className="space-y-4">
         <div className="flex items-center gap-4">
-          <div className="flex-1 bg-zinc-900/50 p-6 rounded-2xl border border-zinc-900 hover:border-zinc-800 transition-colors">
+          <div className={`flex-1 bg-zinc-900/50 p-6 rounded-2xl border transition-colors ${isLocked ? 'border-zinc-900' : 'border-zinc-800'}`}>
             <h5 className="text-[9px] font-black text-zinc-600 uppercase mb-3 tracking-widest">QUIEN SOY HOY</h5>
             <textarea
               value={identity.current_identity}
               onChange={(e) => handleIdentityChange('current_identity', e.target.value)}
+              disabled={isLocked}
               className="w-full bg-transparent border-none p-0 text-xs font-bold text-zinc-500 focus:ring-0 placeholder-zinc-800 resize-none h-16"
               placeholder="Lo que dejo atrás..."
             />
           </div>
-          <div className="shrink-0 text-[#FFD700] animate-pulse">
+          <div className={`shrink-0 animate-pulse ${isLocked ? 'text-zinc-800' : 'text-[#FFD700]'}`}>
             <ArrowRight size={24} />
           </div>
-          <div className="flex-1 bg-zinc-900/50 p-6 rounded-2xl border border-[#FFD700]/20 shadow-[0_0_20px_rgba(255,215,0,0.03)] hover:border-[#FFD700]/40 transition-all">
-            <h5 className="text-[9px] font-black text-[#FFD700] uppercase mb-3 tracking-widest">EN QUIEN ME CONVIERTO</h5>
+          <div className={`flex-1 bg-zinc-900/50 p-6 rounded-2xl border shadow-[0_0_20px_rgba(255,215,0,0.03)] transition-all ${isLocked ? 'border-[#FFD700]/10' : 'border-[#FFD700]/40'}`}>
+            <h5 className={`text-[9px] font-black uppercase mb-3 tracking-widest ${isLocked ? 'text-zinc-500' : 'text-[#FFD700]'}`}>EN QUIEN ME CONVIERTO</h5>
             <textarea
               value={identity.new_identity}
               onChange={(e) => handleIdentityChange('new_identity', e.target.value)}
-              className="w-full bg-transparent border-none p-0 text-xs font-black text-white focus:ring-0 placeholder-zinc-800 resize-none h-16"
+              disabled={isLocked}
+              className={`w-full bg-transparent border-none p-0 text-xs font-black focus:ring-0 placeholder-zinc-800 resize-none h-16 ${isLocked ? 'text-zinc-300' : 'text-white'}`}
               placeholder="El nuevo estándar..."
             />
           </div>
@@ -203,12 +239,14 @@ const IdentityMap: React.FC<IdentityMapProps> = ({ identity, setIdentity, goals,
       </section>
 
       {/* FOOTER ACTION PREMIUM */}
-      <button
-        onClick={() => { triggerHaptic('heavy'); alert("DESTINO SELLADO. Tu subconsciente ahora tiene una orden clara."); }}
-        className="w-full bg-gradient-to-r from-[#FFD700] to-[#B8860B] text-black font-black py-6 rounded-3xl shadow-[0_20px_50px_-10px_rgba(255,215,0,0.3)] scale-on-tap transition-all text-lg uppercase tracking-tight flex items-center justify-center gap-3 group"
-      >
-        <Trophy size={22} className="group-hover:rotate-12 transition-transform" /> SELLAR MI DESTINO
-      </button>
+      {!isLocked && (
+        <button
+          onClick={handleSealDestiny}
+          className="w-full bg-gradient-to-r from-[#FFD700] to-[#B8860B] text-black font-black py-6 rounded-3xl shadow-[0_20px_50px_-10px_rgba(255,215,0,0.3)] scale-on-tap transition-all text-lg uppercase tracking-tight flex items-center justify-center gap-3 group animate-in slide-in-from-bottom-2"
+        >
+          <Lock size={22} className="group-hover:scale-110 transition-transform" /> SELLAR MI DESTINO
+        </button>
+      )}
     </div>
   );
 };
