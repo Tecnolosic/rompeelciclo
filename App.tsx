@@ -116,6 +116,7 @@ const App: React.FC = () => {
   const [readingPilarId, setReadingPilarId] = useState<number | null>(null);
   const [mentorTrigger, setMentorTrigger] = useState<string | null>(null);
   const [dailySparks, setDailySparks] = useState<DailySpark[]>([]);
+  const [interactions, setInteractions] = useState<any[]>([]); // CORRECTION: Added missing state
   const [showSuccess, setShowSuccess] = useState<'goal' | 'streak' | null>(null);
   const [showLevelUp, setShowLevelUp] = useState<boolean>(false);
 
@@ -226,6 +227,10 @@ const App: React.FC = () => {
 
       if (dbSparks && dbSparks.length > 0) {
         setDailySparks(dbSparks);
+      }
+
+      if (dbInteractions) {
+        setInteractions(dbInteractions);
       }
     }
   };
