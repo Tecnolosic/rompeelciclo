@@ -37,6 +37,7 @@ export interface UserStats {
 export interface DailySpark {
   day_id: number;
   quote: string;
+  author?: string;
   action_task: string;
   is_completed: boolean;
 }

@@ -1,15 +1,3 @@
-
-import React, { useState, useRef } from 'react';
-import { TrendingUp, Trophy, Play, Pause, Video, Maximize2, ShieldCheck, BarChart3 } from 'lucide-react';
-import { Confession, UserStats, ActivityLog } from '../types';
-
-interface StatsProps {
-  userStats: UserStats;
-  confessions: Confession[];
-  activityLogs: ActivityLog[];
-  triggerHaptic: (type?: 'light' | 'medium' | 'heavy') => void;
-}
-
 import React, { useMemo } from 'react';
 import { TrendingUp, Trophy, Zap, Activity, Quote, Flame } from 'lucide-react';
 import { Confession, UserStats, DailySpark } from '../types';
@@ -20,6 +8,7 @@ interface StatsProps {
   dailySparks: DailySpark[];
   interactions: any[]; // Raw interaction logs from DB
   triggerHaptic: (type?: 'light' | 'medium' | 'heavy') => void;
+  activityLogs: any[]; // Kept for compatibility if needed
 }
 
 const Stats: React.FC<StatsProps> = ({ userStats, dailySparks, interactions = [], triggerHaptic }) => {
@@ -173,7 +162,5 @@ const Stats: React.FC<StatsProps> = ({ userStats, dailySparks, interactions = []
     </div>
   );
 };
-
-export default Stats;
 
 export default Stats;
