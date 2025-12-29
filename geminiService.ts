@@ -3,14 +3,10 @@ import { GoogleGenAI } from "@google/genai";
 import { UserIdentity, Confession, Goal, UserStats } from "./types";
 
 const getAI = () => {
-  // 1. Intentar leer de variable de entorno (Vercel)
-  const envKey = import.meta.env.VITE_GEMINI_API_KEY || (window as any).VITE_GEMINI_API_KEY;
-
-  // 2. Fallback HARDCODED (Para asegurar que funcione YA)
-  const apiKey = envKey || "AIzaSyBe_6zHqGnogIJPDb9pKytIIXcObidt5BE";
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
   if (!apiKey) {
-    console.error("CRITICAL: API Key not found anywhere.");
+    console.error("CRITICAL: API Key not found. Check Vercel 'VITE_GEMINI_API_KEY' setting.");
     throw new Error("API Key no configurada.");
   }
   return new GoogleGenAI({ apiKey });
