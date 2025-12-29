@@ -19,6 +19,15 @@ const Toolbox: React.FC<ToolboxProps> = ({ onAddConfession, triggerHaptic, onTri
   const [loading, setLoading] = useState(false);
   const [scripts, setScripts] = useState<string | null>(null);
 
+  // Helper para compatibilidad de navegador (Safari/iOS vs Chrome)
+  const getSupportedMimeType = (type: 'video' | 'audio') => {
+    const types = type === 'video'
+      ? ['video/webm;codecs=vp9,opus', 'video/webm', 'video/mp4', 'video/mp4;codecs=h264,aac']
+      : ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/aac'];
+
+    return types.find(t => MediaRecorder.isTypeSupported(t)) || '';
+  };
+
   const [confessionText, setConfessionText] = useState('');
   const [reflectionNote, setReflectionNote] = useState('');
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
@@ -69,11 +78,14 @@ const Toolbox: React.FC<ToolboxProps> = ({ onAddConfession, triggerHaptic, onTri
     triggerHaptic('medium');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
       audioChunksRef.current = [];
+      const mimeType = getSupportedMimeType('audio');
+      // @ts-ignore - Options type mismatch in some TS versions
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+
       recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
       recorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType || 'audio/webm' });
         const reader = new FileReader();
         reader.readAsDataURL(audioBlob);
         reader.onloadend = () => {
@@ -99,11 +111,14 @@ const Toolbox: React.FC<ToolboxProps> = ({ onAddConfession, triggerHaptic, onTri
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       streamRef.current = stream;
       if (videoRef.current) videoRef.current.srcObject = stream;
-      const recorder = new MediaRecorder(stream);
+      const mimeType = getSupportedMimeType('video');
+      // @ts-ignore
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+
       videoChunksRef.current = [];
       recorder.ondataavailable = (e) => { if (e.data.size > 0) videoChunksRef.current.push(e.data); };
       recorder.onstop = () => {
-        const videoBlob = new Blob(videoChunksRef.current, { type: 'video/webm' });
+        const videoBlob = new Blob(videoChunksRef.current, { type: mimeType || 'video/webm' });
         setTempVideoUrl(URL.createObjectURL(videoBlob));
         const reader = new FileReader();
         reader.readAsDataURL(videoBlob);
@@ -294,7 +309,7 @@ const Toolbox: React.FC<ToolboxProps> = ({ onAddConfession, triggerHaptic, onTri
             ) : isRecordingVideo ? (
               <div className="space-y-6">
                 <div className="relative rounded-3xl overflow-hidden border-2 border-red-500 shadow-2xl bg-black">
-                  <video ref={videoRef} autoPlay muted className="w-full aspect-video object-cover" />
+                  <video ref={videoRef} autoPlay muted playsInline className="w-full aspect-video object-cover" />
                   <div className="absolute top-6 left-6 bg-black/80 px-4 py-2 rounded-full flex items-center gap-3 backdrop-blur-md">
                     <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                     <span className="text-[10px] font-black text-white uppercase tracking-wider">GRABANDO</span>
@@ -306,7 +321,7 @@ const Toolbox: React.FC<ToolboxProps> = ({ onAddConfession, triggerHaptic, onTri
               </div>
             ) : tempVideoUrl ? (
               <div className="space-y-6 animate-in slide-in-from-bottom-6">
-                {tempVideoUrl !== 'voice_ready' && <video src={tempVideoUrl} controls className="w-full aspect-video object-cover rounded-3xl bg-black border border-zinc-800 shadow-2xl" />}
+                {tempVideoUrl !== 'voice_ready' && <video src={tempVideoUrl} controls playsInline className="w-full aspect-video object-cover rounded-3xl bg-black border border-zinc-800 shadow-2xl" />}
 
                 <div className="bg-zinc-900/30 p-6 rounded-3xl border border-zinc-800">
                   <p className="text-[10px] text-[#FFD700] font-black uppercase tracking-widest mb-3 flex items-center gap-2">
