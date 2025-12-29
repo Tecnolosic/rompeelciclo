@@ -2,7 +2,14 @@
 import { GoogleGenAI } from "@google/genai";
 import { UserIdentity, Confession, Goal, UserStats } from "./types";
 
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+const getAI = () => {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey) {
+    console.error("VITE_GEMINI_API_KEY is missing");
+    throw new Error("API Key no configurada");
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 
 const COACH_SYSTEM_INSTRUCTION = `
@@ -59,7 +66,7 @@ export const getCoachResponseStream = async (
   `;
 
   try {
-    const result = await ai.models.generateContentStream({
+    const result = await getAI().models.generateContentStream({
       model: 'gemini-flash-latest',
       contents: [
         { role: 'user', parts: [{ text: `INICIALIZANDO CONTEXTO SEGURO: ${userContext}` }] },
@@ -88,7 +95,7 @@ export const getCoachResponseStream = async (
 
 export const generateSalesScripts = async (product: string, target: string) => {
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAI().models.generateContent({
       model: 'gemini-flash-latest',
       contents: [
         { role: 'user', parts: [{ text: `Genera 3 scripts de venta agresivos para ${product} dirigidos a ${target}.` }] }
