@@ -4,7 +4,8 @@ export enum AppSection {
   MAPA = 'MI MAPA',
   MENTOR = 'MENTOR',
   HERRAMIENTAS = 'ACCIONES',
-  RACHA = 'HISTORIAL'
+  RACHA = 'HISTORIAL',
+  RECURSOS = 'RECURSOS'
 }
 
 export enum OnboardingStep {

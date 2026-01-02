@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Home, Map, Wrench, Calendar, Zap, Shield, Trophy, BrainCircuit, Check, LogOut, Loader2, Menu } from 'lucide-react';
+import { Home, Map, Wrench, Calendar, Zap, Shield, Trophy, BrainCircuit, Check, LogOut, Loader2, Menu, Library } from 'lucide-react';
+import Resources from './components/Resources';
+import EbookGenerator from './components/EbookGenerator';
 import { AppSection, Pilar, Confession, UserStats, DailySpark, ActivityLog, Goal, UserIdentity } from './types';
 import lottie from 'lottie-web';
 import Timeline from './components/Timeline';
@@ -119,6 +121,7 @@ const App: React.FC = () => {
   const [interactions, setInteractions] = useState<any[]>([]); // CORRECTION: Added missing state
   const [showSuccess, setShowSuccess] = useState<'goal' | 'streak' | null>(null);
   const [showLevelUp, setShowLevelUp] = useState<boolean>(false);
+  const [showEbook, setShowEbook] = useState<boolean>(false);
 
   const { playClick, playSuccess, playLevelUp, playType } = useSoundFX();
   const prevLevelRef = useRef<number>(1);
@@ -164,7 +167,7 @@ const App: React.FC = () => {
   const loadData = async () => {
     const data = await fetchUserData();
     if (data) {
-      const { profile, goals: dbGoals, confessions: dbConfessions, pillarProgress: dbPillarProgress, pillars: dbPillars, dailySparks: dbSparks } = data;
+      const { profile, goals: dbGoals, confessions: dbConfessions, pillarProgress: dbPillarProgress, pillars: dbPillars, dailySparks: dbSparks, interactions: dbInteractions } = data;
 
       if (profile) {
         setIdentity(prev => ({ ...prev, ...profile }));
@@ -356,7 +359,7 @@ const App: React.FC = () => {
       <main className="flex-1 overflow-y-auto pb-32 smooth-scroll relative z-10">
         {activeSection === AppSection.HOME && (
           <div className="space-y-6 pb-12">
-            <Timeline pilares={pilares} onPilarClick={(id) => setReadingPilarId(id)} />
+            <Timeline pilares={pilares} onPilarClick={(id) => setReadingPilarId(id)} onOpenEbook={() => setShowEbook(true)} />
           </div>
         )}
         {activeSection === AppSection.MAPA && (
@@ -377,6 +380,7 @@ const App: React.FC = () => {
           />
         )}
         {activeSection === AppSection.MENTOR && <MentorNode identity={identity} confessions={confessions} goals={goals} userStats={userStats} triggerHaptic={triggerHaptic} initialTrigger={mentorTrigger} onTriggerHandled={() => setMentorTrigger(null)} />}
+
         {activeSection === AppSection.HERRAMIENTAS && (
           <Toolbox
             onAddConfession={(c) => {
@@ -409,8 +413,12 @@ const App: React.FC = () => {
         />
       )}
 
+      {showEbook && (
+        <EbookGenerator identity={identity} onClose={() => setShowEbook(false)} />
+      )}
+
       {/* TACTICAL NAV (HUD) */}
-      <nav className="fixed bottom-6 left-6 right-6 max-w-[calc(28rem-3rem)] md:max-w-xl mx-auto bg-zinc-950/90 border border-zinc-800 rounded-2xl flex justify-between items-center h-20 backdrop-blur-xl z-[100] px-6 shadow-2xl shadow-black/50">
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md md:max-w-xl bg-zinc-950/90 border border-zinc-800 rounded-2xl flex justify-between items-center h-20 backdrop-blur-xl z-[100] px-4 shadow-2xl shadow-black/50">
         {[{ id: AppSection.HOME, icon: Home }, { id: AppSection.MAPA, icon: Map }, { id: AppSection.MENTOR, icon: BrainCircuit }, { id: AppSection.HERRAMIENTAS, icon: Wrench }, { id: AppSection.RACHA, icon: Trophy }].map(item => (
           <button
             key={item.id}

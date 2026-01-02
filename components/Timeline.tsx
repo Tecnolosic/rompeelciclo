@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ChevronRight, Lock, CheckCircle2, ArrowDownCircle, Zap, ShieldCheck } from 'lucide-react';
+import { ChevronRight, Lock, CheckCircle2, ArrowDownCircle, Zap, ShieldCheck, Download } from 'lucide-react';
 import { Pilar } from '../types';
 
 import { useSoundFX } from '../src/hooks/useSoundFX';
@@ -8,9 +8,10 @@ import { useSoundFX } from '../src/hooks/useSoundFX';
 interface TimelineProps {
   pilares: Pilar[];
   onPilarClick: (id: number) => void;
+  onOpenEbook: () => void;
 }
 
-const Timeline: React.FC<TimelineProps> = ({ pilares, onPilarClick }) => {
+const Timeline: React.FC<TimelineProps> = ({ pilares, onPilarClick, onOpenEbook }) => {
   const { playClick } = useSoundFX();
   return (
     <div className="p-6 relative">
@@ -134,19 +135,32 @@ const Timeline: React.FC<TimelineProps> = ({ pilares, onPilarClick }) => {
         })}
       </div>
 
-      {/* Footer Motivation Block - Ultra Premium */}
-      <div className="mt-20 p-10 rounded-[3rem] bg-[#050505] border border-zinc-900 flex items-center justify-between group cursor-default relative overflow-hidden staggered-item shadow-2xl" style={{ animationDelay: '1s' }}>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#FFD700]/[0.05] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
-        <div className="relative z-10">
-          <h4 className="text-[#FFD700] font-black text-xl tracking-tighter mb-1 uppercase gold-glow transition-transform duration-700 group-hover:translate-x-1">SIGUE EMPUJANDO EL LÍMITE</h4>
-          <p className="text-[10px] text-zinc-600 uppercase font-black tracking-[0.3em]">CADA ACCIÓN TÁCTICA CUENTA</p>
-        </div>
-        <div className="relative z-10 h-16 w-16 bg-zinc-950 rounded-full border border-zinc-800 flex items-center justify-center text-[#FFD700] group-hover:scale-110 group-hover:border-[#FFD700] group-hover:shadow-[0_0_30px_rgba(255,215,0,0.2)] transition-all duration-700">
-          <ArrowDownCircle size={32} className="animate-bounce" />
-        </div>
+      {/* EBOOK DOWNLOAD FOOTER BUTTON */}
+      <div className="mt-8 animate-in slide-in-from-bottom-4 duration-700 delay-300 md:col-span-full">
+        <button
+          onClick={onOpenEbook}
+          className="w-full group relative overflow-hidden bg-black border border-zinc-800 rounded-[2rem] p-6 text-left transition-all hover:border-[#FFD700]/50 hover:shadow-[0_0_30px_rgba(255,215,0,0.1)]"
+        >
+          <div className="relative z-10 flex justify-between items-center">
+            <div>
+              <h4 className="text-[#FFD700] font-black uppercase tracking-tight text-lg group-hover:tracking-widest transition-all duration-300">
+                Descargá aquí tu Ebook
+              </h4>
+              <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-[0.2em] mt-1 group-hover:text-zinc-400">
+                Manual Operativo 2.0
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:bg-[#FFD700] group-hover:text-black transition-all">
+              <Download size={18} />
+            </div>
+          </div>
+          {/* Bg Hover Effect */}
+          <div className="absolute inset-0 bg-[#FFD700]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        </button>
       </div>
     </div>
   );
-};
+
+}; // Final del componente
 
 export default Timeline;
