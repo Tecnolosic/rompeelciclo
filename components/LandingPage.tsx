@@ -30,7 +30,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
 
             {/* NAV */}
             <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-xl border-b border-zinc-900/50">
-                <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+                <div className="max-w-6xl mx-auto px-4 md:px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-[#FFD700] rounded-sm flex items-center justify-center transform rotate-3">
                             <Shield className="text-black" size={18} fill="currentColor" />
@@ -43,7 +43,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
                             playClick();
                             onLogin();
                         }}
-                        className="text-[10px] md:text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-colors border border-zinc-800 px-6 py-2 rounded-full hover:border-[#FFD700] hover:bg-[#FFD700]/10"
+                        className="text-[10px] md:text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-colors border border-zinc-800 px-4 md:px-6 py-2 rounded-full hover:border-[#FFD700] hover:bg-[#FFD700]/10"
                     >
                         Acceso Miembros
                     </button>
@@ -59,7 +59,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
                         <span className="text-[10px] font-black tracking-[0.2em] text-[#FFD700] uppercase">Sistema v2.0 Activo</span>
                     </div>
 
-                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-8 uppercase tracking-tighter leading-[0.9]">
+                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-8 uppercase tracking-tighter leading-[1.1] md:leading-[0.9]">
                         No estás bloqueado.<br />
                         <span className="text-zinc-600">Estás atrapado</span><br />
                         en un ciclo.
@@ -126,7 +126,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
             <section className="py-32 px-6 bg-[#FFD700] text-black pattern-grid-lg">
                 <div className="max-w-4xl mx-auto text-center transform hover:scale-[1.01] transition-transform duration-500">
                     <Quote className="w-12 h-12 mx-auto mb-6 opacity-30" />
-                    <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-8 leading-[0.9]">
+                    <h2 className="text-3xl md:text-6xl font-black uppercase tracking-tighter mb-8 leading-tight md:leading-[0.9]">
                         No necesitás más motivación.<br />
                         Necesitás un sistema.
                     </h2>
