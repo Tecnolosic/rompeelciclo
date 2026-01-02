@@ -52,19 +52,25 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete, triggerHaptic, init
 
     try {
       if (isLogin) {
-        const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
-        if (loginError) throw loginError;
-        // Login successful. 
-        // Advance to QUIZ immediately. If the user is already fully onboarded, App.tsx will unmount this component shortly.
-        // If they are NOT fully onboarded, this lets them continue the flow.
+        console.log('[Auth] Attempting login with:', email);
+        const { data, error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+
+        if (loginError) {
+          console.error('[Auth] Login Error:', loginError);
+          throw loginError;
+        }
+
+        console.log('[Auth] Login successful:', data.user?.id);
+        // FORCE STEP ADVANCE
         setStep(OnboardingStep.QUIZ);
+
       } else {
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: {
-              name: email.split('@')[0], // Default meta
+              name: email.split('@')[0],
             }
           }
         });
@@ -72,26 +78,24 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete, triggerHaptic, init
         if (signUpError) throw signUpError;
 
         if (data.session) {
-          // Auto-login worked (Email Confirm Disabled or unnecessary)
           setStep(OnboardingStep.QUIZ);
         } else if (data.user) {
-          // User created but no session -> Email Confirmation Required
-          setError("Cuenta creada. Por favor VERIFICA tu email para continuar.");
-          setIsLogin(true); // Switch to login mode so they can sign in after verifying
+          setError("Cuenta creada. VERIFICA TU EMAIL para continuar.");
+          setIsLogin(true);
         }
       }
     } catch (e: any) {
-      console.error("Auth Error Full:", e);
-      const msg = e.message?.toLowerCase() || '';
+      console.error("Auth Exception:", e);
+      let msg = e.message || 'Error desconocido';
 
-      if (msg.includes('rate limit')) {
-        setError("⛔ Bloqueo temporal por seguridad (IP). Espera un momento o cambia de red WiFi/Datos.");
-      } else if (msg.includes('already registered') || msg.includes('user already registered')) {
-        setError("⚠️ Este email ya existe. Redirigiendo a inicio de sesión...");
-        setTimeout(() => setIsLogin(true), 2000);
-      } else {
-        setError(`Error: ${e.message}`);
-      }
+      // User-friendly error mapping
+      if (msg.includes('Invalid login credentials')) msg = 'Contraseña incorrecta o usuario no encontrado.';
+      if (msg.includes('Email not confirmed')) msg = 'Email no verificado. Revisa tu correo.';
+      if (msg.includes('rate limit')) msg = 'Demasiados intentos. Espera unos minutos.';
+
+      setError(msg);
+      // Temporary alert to ensure user sees it
+      // alert(`ERROR DE ACCESO: ${msg}`); 
     } finally {
       setIsFinishing(false);
     }
