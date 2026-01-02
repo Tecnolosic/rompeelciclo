@@ -4,7 +4,7 @@ import { UserIdentity, Confession, Goal, UserStats } from "./types";
 
 const getAI = () => {
   // @ts-ignore
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
 
   if (!apiKey) {
     console.error("CRITICAL: API Key not found. Check Vercel 'VITE_GEMINI_API_KEY' setting.");
