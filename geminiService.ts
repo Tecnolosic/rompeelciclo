@@ -3,6 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 import { UserIdentity, Confession, Goal, UserStats } from "./types";
 
 const getAI = () => {
+  // @ts-ignore
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
   if (!apiKey) {
