@@ -180,9 +180,9 @@ const App: React.FC = () => {
           total_milestones: profile.total_milestones || 0,
           xp: profile.xp || 0
         });
-        // Strict onboarding check: User must have a profession set (indicating they finished the Onboarding Wizard)
-        // The default trigger sets name=email, so checking name is not enough.
-        setIsOnboarded(!!profile.name && !!profile.profession);
+        // Check if profile exists. If user has name OR profession OR is_verified, assume onboarded.
+        // Relaxed check to prevent returning users from getting stuck in Onboarding loop.
+        setIsOnboarded(!!profile.name || !!profile.profession || !!profile.is_verified);
         setIsVerified(profile.is_verified || false);
       }
 

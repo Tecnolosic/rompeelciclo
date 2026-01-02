@@ -52,16 +52,16 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete, triggerHaptic, init
 
     try {
       if (isLogin) {
-        console.log('[Auth] Attempting login with:', email);
+        console.log('[Auth] Authenticating user:', email);
         const { data, error: loginError } = await supabase.auth.signInWithPassword({ email, password });
 
         if (loginError) {
-          console.error('[Auth] Login Error:', loginError);
+          console.error('[Auth] Login failed:', loginError);
           throw loginError;
         }
 
-        console.log('[Auth] Login successful:', data.user?.id);
-        // FORCE STEP ADVANCE
+        console.log('[Auth] Success. User ID:', data.user?.id);
+        // FORCE ADVANCE
         setStep(OnboardingStep.QUIZ);
 
       } else {
@@ -90,12 +90,9 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete, triggerHaptic, init
 
       // User-friendly error mapping
       if (msg.includes('Invalid login credentials')) msg = 'Contraseña incorrecta o usuario no encontrado.';
-      if (msg.includes('Email not confirmed')) msg = 'Email no verificado. Revisa tu correo.';
       if (msg.includes('rate limit')) msg = 'Demasiados intentos. Espera unos minutos.';
 
       setError(msg);
-      // Temporary alert to ensure user sees it
-      // alert(`ERROR DE ACCESO: ${msg}`); 
     } finally {
       setIsFinishing(false);
     }
