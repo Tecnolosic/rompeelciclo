@@ -260,23 +260,6 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete, triggerHaptic, init
                   <>¿YA REGISTRADO? <span className="underline">INICIAR SESIÓN AQUÍ</span></>
                 )}
               </button>
-              <button
-                onClick={() => {
-                  triggerHaptic('medium');
-                  onComplete({
-                    email: 'invitado@rompe.com',
-                    deviceId: currentDeviceId,
-                    blocker: 'Invitado',
-                    name: 'Invitado',
-                    dob: '',
-                    profession: ''
-                  });
-                }}
-                className="w-full text-zinc-600 text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors pt-2"
-                type="button"
-              >
-                MODO INVITADO (SIN REGISTRO)
-              </button>
             </div>
           </form>
         );
