@@ -181,10 +181,29 @@ const App: React.FC = () => {
           total_milestones: profile.total_milestones || 0,
           xp: profile.xp || 0
         });
-        // Check if profile exists. If user has name OR profession OR is_verified, assume onboarded.
-        // Relaxed check to prevent returning users from getting stuck in Onboarding loop.
-        setIsOnboarded(!!profile.name || !!profile.profession || !!profile.is_verified);
+        setIsOnboarded(true); // Always trust existing profile
         setIsVerified(profile.is_verified || false);
+      } else {
+        // EMERGENCY FALLBACK: User has Auth Session but NO Profile (Row missing)
+        // Auto-heal: Create rudimentary profile to allow access
+        console.log('Session exists but Profile missing. Auto-creating...');
+        const newProfile = {
+          id: session.user.id,
+          name: session.user.email?.split('@')[0] || 'Usuario',
+          email: session.user.email,
+          xp: 0,
+          current_streak: 0,
+          updated_at: new Date().toISOString()
+        };
+
+        // Fire and forget upsert to DB
+        supabase.from('profiles').upsert(newProfile).then(({ error }) => {
+          if (error) console.error('Auto-create profile failed:', error);
+        });
+
+        // Set local state to let user in immediately
+        setIdentity(prev => ({ ...prev, ...newProfile }));
+        setIsOnboarded(true);
       }
 
       if (dbGoals.length > 0) setGoals(dbGoals.map((g: any) => ({

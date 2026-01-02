@@ -80,7 +80,10 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete, triggerHaptic, init
         if (data.session) {
           setStep(OnboardingStep.QUIZ);
         } else if (data.user) {
-          setError("Cuenta creada. VERIFICA TU EMAIL para continuar.");
+          const msg = "Cuenta creada. VERIFICA TU EMAIL para continuar.";
+          setError(msg);
+          // Temporary alert to ensure user sees it
+          alert(`AVISO: ${msg}`);
           setIsLogin(true);
         }
       }
