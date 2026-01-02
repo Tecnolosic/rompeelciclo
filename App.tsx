@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Home, Map, Wrench, Calendar, Zap, Shield, Trophy, BrainCircuit, Check, LogOut, Loader2, Menu, Library } from 'lucide-react';
 import Resources from './components/Resources';
 import EbookGenerator from './components/EbookGenerator';
-import { AppSection, Pilar, Confession, UserStats, DailySpark, ActivityLog, Goal, UserIdentity } from './types';
+import { AppSection, Pilar, Confession, UserStats, DailySpark, ActivityLog, Goal, UserIdentity, OnboardingStep } from './types';
 import lottie from 'lottie-web';
 import Timeline from './components/Timeline';
 import IdentityMap from './components/IdentityMap';
@@ -122,6 +122,8 @@ const App: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState<'goal' | 'streak' | null>(null);
   const [showLevelUp, setShowLevelUp] = useState<boolean>(false);
   const [showEbook, setShowEbook] = useState<boolean>(false);
+  // NEW: Control initial onboarding step for navigation (Landing -> Login)
+  const [onboardingStartStep, setOnboardingStartStep] = useState<OnboardingStep>(OnboardingStep.CONTRACT);
 
   const { playClick, playSuccess, playLevelUp, playType } = useSoundFX();
   const prevLevelRef = useRef<number>(1);
@@ -302,7 +304,7 @@ const App: React.FC = () => {
     </div>
   );
 
-  if (showLanding && !session) return <LandingPage onStart={() => { setShowOffer(true); setShowLanding(false); }} onLogin={() => setShowLanding(false)} />;
+  if (showLanding && !session) return <LandingPage onStart={() => { setShowOffer(true); setShowLanding(false); setOnboardingStartStep(OnboardingStep.CONTRACT); }} onLogin={() => { setOnboardingStartStep(OnboardingStep.AUTH); setShowLanding(false); }} />;
 
   if (showOffer && !session) return (
     <OfferPage
@@ -310,11 +312,11 @@ const App: React.FC = () => {
         // Redirección directa a Lemon Squeezy
         window.location.href = 'https://rompeelciclo.lemonsqueezy.com/checkout/buy/a4e123fa-eb45-42b4-b21c-31edda254689';
       }}
-      onLogin={() => { setShowOffer(false); setShowLanding(false); }}
+      onLogin={() => { setOnboardingStartStep(OnboardingStep.AUTH); setShowOffer(false); setShowLanding(false); }}
     />
   );
 
-  if (!isOnboarded) return <Onboarding onComplete={(d) => {
+  if (!isOnboarded) return <Onboarding initialStep={onboardingStartStep} onComplete={(d) => {
     setIdentity(prev => ({ ...prev, ...d }));
     saveProfile(d); // PERSIST TO DB
     setIsOnboarded(true);

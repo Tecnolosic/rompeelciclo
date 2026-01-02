@@ -7,17 +7,19 @@ import { supabase } from '../src/lib/supabase';
 interface OnboardingProps {
   onComplete: (data: { email: string; deviceId: string; blocker: string; name: string; dob: string; profession: string }) => void;
   triggerHaptic: (type?: 'light' | 'medium' | 'heavy') => void;
+  initialStep?: OnboardingStep;
 }
 
-const Onboarding: React.FC<OnboardingProps> = ({ onComplete, triggerHaptic }) => {
-  const [step, setStep] = useState<OnboardingStep>(OnboardingStep.CONTRACT);
+const Onboarding: React.FC<OnboardingProps> = ({ onComplete, triggerHaptic, initialStep = OnboardingStep.CONTRACT }) => {
+  const [step, setStep] = useState<OnboardingStep>(initialStep);
   const [blocker, setBlocker] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [dob, setDob] = useState('');
   const [profession, setProfession] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(false);
+  // Logic: If starting at AUTH, assume user wants to Login (Member Access). If CONTRACT, default to Register flow.
+  const [isLogin, setIsLogin] = useState(initialStep === OnboardingStep.AUTH);
   const [error, setError] = useState<string | null>(null);
   const [isFinishing, setIsFinishing] = useState(false);
 
