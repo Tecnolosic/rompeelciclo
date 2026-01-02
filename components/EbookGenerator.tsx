@@ -96,7 +96,7 @@ const EbookGenerator: React.FC<EbookGeneratorProps> = ({ identity, onClose }) =>
 
                     {/* CONTENT PAGES */}
                     {EBOOK_CONTENT.map((phase, index) => (
-                        <div key={index} className="px-16 py-16 page-break-after min-h-[297mm]">
+                        <div key={index} className="px-16 py-16 break-before-page min-h-[297mm] flex flex-col">
                             {/* Phase Header */}
                             <div className="flex items-start gap-6 mb-12 border-b-4 border-black pb-8">
                                 <span className="text-9xl font-black text-zinc-100 leading-none -mt-4 select-none">{phase.phase}</span>
@@ -108,22 +108,65 @@ const EbookGenerator: React.FC<EbookGeneratorProps> = ({ identity, onClose }) =>
 
                             <div className="space-y-16">
                                 {phase.chapters.map((chapter, cIndex) => (
-                                    <div key={cIndex} className="avoid-break">
-                                        <h3 className="text-xl font-black uppercase mb-6 flex items-center gap-3 bg-zinc-100 p-2 -ml-2 rounded">
-                                            <Target size={20} className="text-black" />
-                                            {chapter.title}
+                                    <div key={cIndex} className="avoid-break mb-16">
+                                        {/* CHAPTER TITLE */}
+                                        <h3 className="text-2xl font-black uppercase mb-6 flex items-center gap-3 border-b-2 border-black pb-2">
+                                            <span className="bg-black text-white w-8 h-8 flex items-center justify-center rounded-full text-sm">{cIndex + 1}</span>
+                                            {chapter.title.split('—')[1] || chapter.title}
                                         </h3>
-                                        <div className="text-justify leading-relaxed font-serif text-lg text-zinc-800 whitespace-pre-wrap pl-2 border-l-2 border-zinc-200">
+
+                                        {/* MAIN CONTENT (Theory) */}
+                                        <div className="text-justify leading-relaxed font-serif text-lg text-zinc-800 whitespace-pre-wrap mb-8 columns-1">
                                             {chapter.content.replace(/\{NOMBRE\}/g, identity.name || 'Operador')}
+                                        </div>
+
+                                        {/* EXAMPLE BOX */}
+                                        {chapter.example && (
+                                            <div className="bg-amber-50 border-l-4 border-amber-400 p-6 mb-8 rounded-r-lg break-inside-avoid">
+                                                <h4 className="font-bold text-amber-900 uppercase text-xs tracking-widest mb-2 flex items-center gap-2">
+                                                    <Zap size={14} /> Ejemplo Claro
+                                                </h4>
+                                                <p className="text-amber-900/80 font-serif italic text-base leading-relaxed">
+                                                    {chapter.example.replace('💡 EJEMPLO CLARO:', '').trim()}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        <div className="grid grid-cols-1 gap-6 break-inside-avoid">
+                                            {/* DEEP DIVE BOX */}
+                                            {chapter.deep_dive && (
+                                                <div className="bg-zinc-100 p-6 rounded-lg text-sm">
+                                                    <h4 className="font-black text-zinc-500 uppercase text-[10px] tracking-[0.2em] mb-3 flex items-center gap-2">
+                                                        <Shield size={12} /> Profundización
+                                                    </h4>
+                                                    <p className="text-zinc-700 leading-relaxed font-sans">
+                                                        {chapter.deep_dive.replace(/.*?:/, '').trim()}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {/* ACTIONABLE BOX */}
+                                            {chapter.actionable && (
+                                                <div className="border-2 border-dashed border-black p-6 relative bg-white">
+                                                    <div className="absolute -top-3 left-4 bg-white px-2">
+                                                        <span className="font-black text-black uppercase text-xs tracking-widest flex items-center gap-2">
+                                                            <Target size={14} /> Tu Turno
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-black font-medium text-base leading-relaxed">
+                                                        {chapter.actionable.replace(/.*?:/, '').trim()}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
                             {/* Footer for each page */}
-                            <div className="mt-20 pt-4 border-t border-zinc-200 flex justify-between text-[10px] text-zinc-400 font-mono uppercase tracking-widest">
+                            <div className="mt-auto pt-8 border-t border-zinc-200 flex justify-between text-[10px] text-zinc-400 font-mono uppercase tracking-widest">
                                 <span>Rompe el Ciclo / Manual Táctico</span>
-                                <span>Página {index + 3}</span>
+                                <span> {identity.name ? `Operador: ${identity.name}` : ''} // Fase {phase.phase}</span>
                             </div>
                         </div>
                     ))}
@@ -146,8 +189,9 @@ const EbookGenerator: React.FC<EbookGeneratorProps> = ({ identity, onClose }) =>
         @media print {
             .no-print { display: none !important; }
             .page-break-after { page-break-after: always; }
-            .page-break-before { page-break-before: always; }
+            .break-before-page { page-break-before: always; break-before: page; }
             .page-break-inside-avoid { break-inside: avoid; }
+            .avoid-break { break-inside: avoid; page-break-inside: avoid; }
             body { background: white; color: black; }
         }
       `}</style>
