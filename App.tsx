@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+// Build Force: v1.0.1 - Fix Login Loop
 import { Home, Map, Wrench, Calendar, Zap, Shield, Trophy, BrainCircuit, Check, LogOut, Loader2, Menu, Library } from 'lucide-react';
 import Resources from './components/Resources';
 import EbookGenerator from './components/EbookGenerator';
