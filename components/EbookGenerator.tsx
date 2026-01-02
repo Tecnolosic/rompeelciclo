@@ -13,8 +13,10 @@ const EbookGenerator: React.FC<EbookGeneratorProps> = ({ identity, onClose }) =>
     const componentRef = useRef<HTMLDivElement>(null);
 
     const handlePrint = useReactToPrint({
-        content: () => componentRef.current,
+        contentRef: componentRef,
         documentTitle: `Rompe_El_Ciclo_Manual_${identity.name || 'Operador'}`,
+        onAfterPrint: () => console.log('Print success'),
+        onPrintError: (error) => console.error('Print failed:', error),
     });
 
     return (
