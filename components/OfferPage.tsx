@@ -34,7 +34,11 @@ const OfferPage: React.FC<OfferPageProps> = ({ onCheckout, onLogin }) => {
                     <Shield size={16} className="text-[#FFD700]" />
                     <span className="text-xs font-black uppercase tracking-widest text-white">ROMPE EL CICLO</span>
                 </div>
-                <button onClick={onLogin} className="text-[10px] font-bold text-zinc-500 hover:text-white uppercase transition-colors">
+                <button onClick={(e) => {
+                    e.preventDefault();
+                    playClick();
+                    onLogin();
+                }} className="text-[10px] font-bold text-zinc-500 hover:text-white uppercase transition-colors">
                     Ya soy miembro
                 </button>
             </nav>

@@ -314,7 +314,11 @@ const App: React.FC = () => {
     />
   );
 
-  if (!isOnboarded) return <Onboarding onComplete={(d) => { setIdentity(prev => ({ ...prev, ...d })); setIsOnboarded(true); }} triggerHaptic={triggerHaptic} />;
+  if (!isOnboarded) return <Onboarding onComplete={(d) => {
+    setIdentity(prev => ({ ...prev, ...d }));
+    saveProfile(d); // PERSIST TO DB
+    setIsOnboarded(true);
+  }} triggerHaptic={triggerHaptic} />;
 
   if (!isVerified && identity.name !== 'Invitado') return <VerificationGate identity={identity} onVerify={() => {
     setIsVerified(true);

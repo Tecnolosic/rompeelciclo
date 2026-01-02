@@ -38,7 +38,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
                         <span className="font-black tracking-tighter text-lg uppercase hidden md:block">ROMPE EL CICLO</span>
                     </div>
                     <button
-                        onClick={onLogin}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            playClick();
+                            onLogin();
+                        }}
                         className="text-[10px] md:text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-colors border border-zinc-800 px-6 py-2 rounded-full hover:border-[#FFD700] hover:bg-[#FFD700]/10"
                     >
                         Acceso Miembros

@@ -52,9 +52,10 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete, triggerHaptic }) =>
       if (isLogin) {
         const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
         if (loginError) throw loginError;
-        // Login successful. We do NOT call onComplete here. 
-        // We let the App.tsx session listener detect the change, fetch the profile, and set isOnboarded(true).
-        // This prevents overwriting the profile with empty data.
+        // Login successful. 
+        // Advance to QUIZ immediately. If the user is already fully onboarded, App.tsx will unmount this component shortly.
+        // If they are NOT fully onboarded, this lets them continue the flow.
+        setStep(OnboardingStep.QUIZ);
       } else {
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
@@ -189,7 +190,13 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete, triggerHaptic }) =>
 
       case OnboardingStep.AUTH:
         return (
-          <div className="flex flex-col space-y-6 animate-in slide-in-from-right duration-500">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleAuth();
+            }}
+            className="flex flex-col space-y-6 animate-in slide-in-from-right duration-500"
+          >
             <div>
               <h2 className="text-3xl font-black text-white uppercase tracking-tighter">
                 {isLogin ? 'VINCULAR TERMINAL' : 'CREAR IDENTIDAD'}
@@ -223,8 +230,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete, triggerHaptic }) =>
             </div>
             <div className="space-y-3">
               <button
+                type="submit"
                 disabled={!email || password.length < 6 || isFinishing}
-                onClick={handleAuth}
                 className={`w-full py-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3 transition-all ${email && password.length >= 6 && !isFinishing
                   ? 'bg-[#FFD700] text-black shadow-[0_10px_30px_rgba(255,215,0,0.2)] scale-on-tap'
                   : 'bg-zinc-800 text-zinc-600 opacity-50'
@@ -265,7 +272,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete, triggerHaptic }) =>
                 MODO INVITADO (SIN REGISTRO)
               </button>
             </div>
-          </div>
+          </form>
         );
 
       case OnboardingStep.QUIZ:
