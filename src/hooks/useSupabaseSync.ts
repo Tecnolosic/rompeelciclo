@@ -125,12 +125,23 @@ export const useSupabaseSync = () => {
         await supabase.auth.signOut();
     };
 
+    const deleteGoal = async (goalId: string) => {
+        if (!session?.user?.id) return;
+        const { error } = await supabase
+            .from('goals')
+            .delete()
+            .eq('id', goalId)
+            .eq('user_id', session.user.id);
+        if (error) console.error('Error deleting goal:', error);
+    };
+
     return {
         session,
         loading,
         fetchUserData,
         saveProfile,
         saveGoal,
+        deleteGoal,
         saveConfession,
         savePilarProgress,
         logInteraction,

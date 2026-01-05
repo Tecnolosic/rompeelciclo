@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { Target, User, Shield, ArrowRight, CheckSquare, Square, Plus, Trash2, Trophy, Star, Lock, Unlock, PenLine } from 'lucide-react';
+import { Target, User, Shield, ArrowRight, CheckSquare, Square, Plus, Trash2, Trophy, Star, Lock, Unlock, PenLine, ChevronDown, CheckCircle2 } from 'lucide-react';
+
 import { UserIdentity, Goal } from '../types';
 
 interface IdentityMapProps {
@@ -9,19 +10,31 @@ interface IdentityMapProps {
   goals: Goal[];
   updateGoal: (goal: Goal) => void;
   triggerHaptic: (type?: 'light' | 'medium' | 'heavy') => void;
+  onAddGoal: () => void;
+  onDeleteGoal: (id: string) => void;
 }
 
-const IdentityMap: React.FC<IdentityMapProps> = ({ identity, setIdentity, goals, updateGoal, triggerHaptic }) => {
+const IdentityMap: React.FC<IdentityMapProps> = ({ identity, setIdentity, goals, updateGoal, triggerHaptic, onAddGoal, onDeleteGoal }) => {
   const [activeGoalId, setActiveGoalId] = useState<string | null>(null);
   const [newTaskName, setNewTaskName] = useState('');
-  // If identity has content, default to locked/sealed mode logic could be applied, 
-  // but for now let's default to unlocked if empty, locked if full? 
-  // User asked for "Edit option". Let's default to verified user needs to unlock.
   const [isLocked, setIsLocked] = useState(!!identity.north_star);
 
-  const handleIdentityChange = (field: keyof UserIdentity, value: string) => {
-    // FIX: Pass the new object directly so App.tsx's wrapper can detect it and save to Supabase
-    setIdentity({ ...identity, [field]: value });
+  // Local state for inputs to prevent DB thrashing on every keystroke
+  const [localIdentity, setLocalIdentity] = useState<UserIdentity>(identity);
+
+  // Sync local state when identity prop changes (e.g. initial load)
+  React.useEffect(() => {
+    setLocalIdentity(identity);
+  }, [identity.north_star, identity.current_identity, identity.new_identity]);
+
+  const handleLocalChange = (field: keyof UserIdentity, value: string) => {
+    setLocalIdentity(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleBlur = (field: keyof UserIdentity) => {
+    if (localIdentity[field] !== identity[field]) {
+      setIdentity({ ...identity, [field]: localIdentity[field] });
+    }
   };
 
   const toggleSubTask = (goal: Goal, index: number) => {
@@ -58,15 +71,13 @@ const IdentityMap: React.FC<IdentityMapProps> = ({ identity, setIdentity, goals,
 
   const handleSealDestiny = () => {
     if (isLocked) {
-      // Unlock logic
       triggerHaptic('medium');
       setIsLocked(false);
     } else {
-      // Seal logic
       triggerHaptic('heavy');
       setIsLocked(true);
-      // Force trigger save just in case (though onChange handles it)
-      setIdentity({ ...identity });
+      // Ensure everything is saved when locking
+      setIdentity({ ...localIdentity });
     }
   };
 
@@ -105,8 +116,9 @@ const IdentityMap: React.FC<IdentityMapProps> = ({ identity, setIdentity, goals,
           </div>
           <h4 className="text-[10px] text-zinc-500 font-bold uppercase mb-2">¿POR QUÉ HAGO TODO ESTO?</h4>
           <textarea
-            value={identity.north_star}
-            onChange={(e) => handleIdentityChange('north_star', e.target.value)}
+            value={localIdentity.north_star}
+            onChange={(e) => handleLocalChange('north_star', e.target.value)}
+            onBlur={() => handleBlur('north_star')}
             disabled={isLocked}
             className={`w-full bg-transparent border-none p-0 text-xl font-black focus:ring-0 placeholder-zinc-800 resize-none h-24 scrollbar-hide ${isLocked ? 'text-zinc-300' : 'text-white'}`}
             placeholder="Escribe tu misión innegociable..."
@@ -120,8 +132,9 @@ const IdentityMap: React.FC<IdentityMapProps> = ({ identity, setIdentity, goals,
           <div className={`flex-1 bg-zinc-900/50 p-6 rounded-2xl border transition-colors ${isLocked ? 'border-zinc-900' : 'border-zinc-800'}`}>
             <h5 className="text-[9px] font-black text-zinc-600 uppercase mb-3 tracking-widest">QUIEN SOY HOY</h5>
             <textarea
-              value={identity.current_identity}
-              onChange={(e) => handleIdentityChange('current_identity', e.target.value)}
+              value={localIdentity.current_identity}
+              onChange={(e) => handleLocalChange('current_identity', e.target.value)}
+              onBlur={() => handleBlur('current_identity')}
               disabled={isLocked}
               className="w-full bg-transparent border-none p-0 text-xs font-bold text-zinc-500 focus:ring-0 placeholder-zinc-800 resize-none h-16"
               placeholder="Lo que dejo atrás..."
@@ -133,8 +146,9 @@ const IdentityMap: React.FC<IdentityMapProps> = ({ identity, setIdentity, goals,
           <div className={`flex-1 bg-zinc-900/50 p-6 rounded-2xl border shadow-[0_0_20px_rgba(255,215,0,0.03)] transition-all ${isLocked ? 'border-[#FFD700]/10' : 'border-[#FFD700]/40'}`}>
             <h5 className={`text-[9px] font-black uppercase mb-3 tracking-widest ${isLocked ? 'text-zinc-500' : 'text-[#FFD700]'}`}>EN QUIEN ME CONVIERTO</h5>
             <textarea
-              value={identity.new_identity}
-              onChange={(e) => handleIdentityChange('new_identity', e.target.value)}
+              value={localIdentity.new_identity}
+              onChange={(e) => handleLocalChange('new_identity', e.target.value)}
+              onBlur={() => handleBlur('new_identity')}
               disabled={isLocked}
               className={`w-full bg-transparent border-none p-0 text-xs font-black focus:ring-0 placeholder-zinc-800 resize-none h-16 ${isLocked ? 'text-zinc-300' : 'text-white'}`}
               placeholder="El nuevo estándar..."
@@ -151,90 +165,129 @@ const IdentityMap: React.FC<IdentityMapProps> = ({ identity, setIdentity, goals,
         </div>
 
         <div className="space-y-4">
-          {goals.map((goal) => (
-            <div
-              key={goal.id}
-              className={`bg-zinc-900/50 rounded-3xl border transition-all duration-500 overflow-hidden relative ${activeGoalId === goal.id ? 'border-[#FFD700]/40 p-6 bg-zinc-900/80' : 'border-zinc-800 p-5'}`}
-            >
-              <div className="flex justify-between items-start mb-5">
-                <div className="flex-1 pr-4">
-                  <input
-                    value={goal.goal_title}
-                    onChange={(e) => updateGoal({ ...goal, goal_title: e.target.value })}
-                    className="bg-transparent border-none p-0 text-lg font-black text-white focus:ring-0 w-full placeholder-zinc-800"
-                    placeholder="Escribe tu meta..."
-                  />
-                  <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mt-1">
-                    {goal.progress_percentage}% COMPLETADO • {goal.progress_percentage < 100 ? 'EMPUJA MÁS FUERTE' : 'OBJETIVO ANIQUILADO'}
-                  </p>
-                </div>
-                <button
-                  onClick={() => { triggerHaptic('light'); setActiveGoalId(activeGoalId === goal.id ? null : goal.id); }}
-                  className={`p-2.5 rounded-full transition-all scale-on-tap ${activeGoalId === goal.id ? 'bg-[#FFD700] text-black shadow-[0_0_15px_rgba(255,215,0,0.3)]' : 'bg-black text-zinc-600 border border-zinc-800'}`}
-                >
-                  <Plus size={16} className={`transition-transform duration-300 ${activeGoalId === goal.id ? 'rotate-45' : ''}`} />
-                </button>
-              </div>
+          <div className="space-y-3">
+            {goals.map((goal) => {
+              const isExpanded = activeGoalId === goal.id;
+              // Local state for goal renaming is implicit here by not managing it at component level 
+              // but we need to prevent onchange spam.
+              // Best approach: uncontrolled input with default value that saves on blur,
+              // or a small local component. For simplicity, let's use a controlled input 
+              // but we need a local state map for it? Or just make the rename input uncontrolled for now.
+              // Actually, simply using defaultValue + onBlur is safer for performance here
+              // without complex local state management for list items.
 
-              {/* CHECKLIST ITEMS CON TRANSICIONES */}
-              {activeGoalId === goal.id && (
-                <div className="space-y-5 animate-in slide-in-from-top-4 duration-500 mb-4">
-                  <div className="space-y-3">
-                    {goal.sub_tasks.length === 0 && (
-                      <p className="text-[10px] text-zinc-700 font-bold uppercase text-center py-4 border border-dashed border-zinc-800 rounded-2xl">
-                        Desglosa la meta en acciones mínimas
-                      </p>
-                    )}
-                    {goal.sub_tasks.map((task, idx) => (
-                      <div key={idx} className="flex items-center justify-between group/task">
-                        <div
-                          onClick={() => toggleSubTask(goal, idx)}
-                          className="flex items-center gap-3 cursor-pointer group-active:scale-95 transition-transform"
-                        >
-                          <div className={`transition-colors duration-300 ${task.is_done ? 'text-[#FFD700]' : 'text-zinc-800'}`}>
-                            {task.is_done ? <CheckSquare size={20} strokeWidth={2.5} /> : <Square size={20} />}
-                          </div>
-                          <span className={`text-[11px] font-bold uppercase transition-all duration-300 ${task.is_done ? 'text-zinc-600 line-through' : 'text-zinc-300'}`}>
-                            {task.task_name}
-                          </span>
+              return (
+                <div
+                  key={goal.id}
+                  className={`bg-zinc-900/50 rounded-2xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'border-[#FFD700] bg-zinc-900' : 'border-zinc-800 hover:border-zinc-700'}`}
+                >
+                  {/* ACCORDION HEADER */}
+                  <div
+                    onClick={() => { triggerHaptic('light'); setActiveGoalId(isExpanded ? null : goal.id); }}
+                    className="p-5 flex justify-between items-center cursor-pointer group"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3">
+                        <h3 className={`font-black text-lg uppercase tracking-tight transition-colors ${isExpanded ? 'text-[#FFD700]' : 'text-white'}`}>
+                          {goal.goal_title}
+                        </h3>
+                        {goal.progress_percentage === 100 && <CheckCircle2 size={16} className="text-[#FFD700]" />}
+                      </div>
+                      <div className="flex items-center gap-3 mt-1">
+                        <div className="flex-1 h-1 bg-zinc-800 rounded-full w-24 overflow-hidden">
+                          <div className="h-full bg-[#FFD700]" style={{ width: `${goal.progress_percentage}%` }}></div>
                         </div>
+                        <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">{goal.progress_percentage}% REALIZADO</span>
+                      </div>
+                    </div>
+                    <div className={`transition-transform duration-300 ${isExpanded ? 'rotate-180 text-[#FFD700]' : 'text-zinc-600 group-hover:text-white'}`}>
+                      <ChevronDown size={20} />
+                    </div>
+                  </div>
+
+                  {/* ACCORDION BODY */}
+                  {isExpanded && (
+                    <div className="px-5 pb-5 pt-0 animate-in slide-in-from-top-2 duration-300">
+                      <div className="border-t border-zinc-800/50 pt-4 mb-4">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 block">RENOMBRAR META</label>
+                        <input
+                          defaultValue={goal.goal_title}
+                          onBlur={(e) => {
+                            if (e.target.value !== goal.goal_title) {
+                              updateGoal({ ...goal, goal_title: e.target.value });
+                            }
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-full bg-black/50 border border-zinc-800 rounded-lg px-3 py-2 text-sm font-bold text-white focus:border-[#FFD700] outline-none transition-colors"
+                        />
+                      </div>
+
+                      <div className="space-y-3 mb-4">
+                        {goal.sub_tasks.length === 0 && (
+                          <p className="text-xs text-zinc-600 font-medium italic text-center py-4">No hay tareas definidas aún.</p>
+                        )}
+                        {goal.sub_tasks.map((task, idx) => (
+                          <div key={idx} className="flex items-center justify-between group/task bg-black/20 p-2 rounded-lg hover:bg-black/40 transition-colors">
+                            <div
+                              onClick={(e) => { e.stopPropagation(); toggleSubTask(goal, idx); }}
+                              className="flex items-center gap-3 cursor-pointer flex-1"
+                            >
+                              <div className={`transition-colors duration-300 ${task.is_done ? 'text-[#FFD700]' : 'text-zinc-700'}`}>
+                                {task.is_done ? <CheckSquare size={18} /> : <Square size={18} />}
+                              </div>
+                              <span className={`text-xs font-bold uppercase ${task.is_done ? 'text-zinc-600 line-through' : 'text-zinc-300'}`}>
+                                {task.task_name}
+                              </span>
+                            </div>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); deleteSubTask(goal, idx); }}
+                              className="text-zinc-700 hover:text-red-500 transition-colors p-1"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex gap-2 mb-6">
+                        <input
+                          value={newTaskName}
+                          onChange={(e) => setNewTaskName(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && addSubTask(goal)}
+                          onClick={(e) => e.stopPropagation()}
+                          placeholder="Nueva sub-tarea..."
+                          className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-xs font-bold text-white focus:border-[#FFD700] outline-none"
+                        />
                         <button
-                          onClick={() => deleteSubTask(goal, idx)}
-                          className="text-zinc-800 hover:text-red-500 opacity-0 group-hover/task:opacity-100 transition-opacity p-1"
+                          onClick={(e) => { e.stopPropagation(); addSubTask(goal); }}
+                          className="bg-[#FFD700] text-black px-4 rounded-lg text-[10px] font-black uppercase hover:bg-[#FFD700]/90"
                         >
-                          <Trash2 size={14} />
+                          <Plus size={16} />
                         </button>
                       </div>
-                    ))}
-                  </div>
 
-                  <div className="flex gap-2 pt-2">
-                    <input
-                      value={newTaskName}
-                      onChange={(e) => setNewTaskName(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && addSubTask(goal)}
-                      placeholder="Nueva acción clave..."
-                      className="flex-1 bg-black border border-zinc-800 rounded-xl px-4 py-3 text-[11px] font-bold text-white focus:border-[#FFD700] outline-none transition-colors"
-                    />
-                    <button
-                      onClick={() => addSubTask(goal)}
-                      className="bg-zinc-800 text-[#FFD700] px-5 rounded-xl text-[10px] font-black uppercase scale-on-tap transition-all border border-[#FFD700]/20 hover:bg-[#FFD700] hover:text-black"
-                    >
-                      AÑADIR
-                    </button>
-                  </div>
+                      <div className="flex justify-end border-t border-zinc-800 pt-3">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onDeleteGoal(goal.id); }}
+                          className="flex items-center gap-2 text-[10px] font-black uppercase text-zinc-600 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 size={12} /> ELIMINAR META DE IMPACTO
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              );
+            })}
 
-              {/* Sleek Minimalist Progress Bar at bottom of card */}
-              <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-zinc-950 overflow-hidden">
-                <div
-                  className={`h-full progress-bar-fill transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(255,215,0,0.5)] ${goal.progress_percentage === 100 ? 'bg-[#FFD700]' : 'bg-[#FFD700]/80'}`}
-                  style={{ width: `${goal.progress_percentage}%` }}
-                ></div>
-              </div>
-            </div>
-          ))}
+            {/* ADD NEW GOAL BUTTON */}
+            <button
+              onClick={onAddGoal}
+              className="w-full py-4 rounded-2xl border-2 border-dashed border-zinc-800 text-zinc-500 font-bold uppercase text-xs tracking-widest hover:border-[#FFD700] hover:text-[#FFD700] transition-all flex items-center justify-center gap-2 group"
+            >
+              <Plus size={16} className="group-hover:scale-110 transition-transform" /> AÑADIR NUEVA META DE IMPACTO
+            </button>
+          </div>
         </div>
       </section>
 

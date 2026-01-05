@@ -40,11 +40,8 @@ const INITIAL_IDENTITY: UserIdentity = {
   new_identity: ''
 };
 
-const INITIAL_GOALS: Goal[] = [
-  { id: '1', goal_title: 'Meta de Impacto 1', target_date: '', sub_tasks: [], progress_percentage: 0 },
-  { id: '2', goal_title: 'Meta de Impacto 2', target_date: '', sub_tasks: [], progress_percentage: 0 },
-  { id: '3', goal_title: 'Meta de Impacto 3', target_date: '', sub_tasks: [], progress_percentage: 0 },
-];
+// INITIAL_GOALS removed to prevent duplication bug
+
 
 const SuccessOverlay: React.FC<{ type: 'goal' | 'streak'; onClose: () => void }> = ({ type, onClose }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -107,7 +104,7 @@ const SuccessOverlay: React.FC<{ type: 'goal' | 'streak'; onClose: () => void }>
 };
 
 const App: React.FC = () => {
-  const { session, loading, fetchUserData, saveProfile, saveGoal, saveConfession, savePilarProgress, logout } = useSupabaseSync();
+  const { session, loading, fetchUserData, saveProfile, saveGoal, deleteGoal, saveConfession, savePilarProgress, logout } = useSupabaseSync();
   const [isOnboarded, setIsOnboarded] = useState<boolean>(false);
   const [isVerified, setIsVerified] = useState<boolean>(false);
   const [showLanding, setShowLanding] = useState<boolean>(true);
@@ -132,7 +129,7 @@ const App: React.FC = () => {
 
   const [userStats, setUserStats] = useState<UserStats>({ current_streak: 0, best_streak: 0, last_active_date: null, total_milestones: 0, xp: 0 });
   const [identity, setIdentity] = useState<UserIdentity>(INITIAL_IDENTITY);
-  const [goals, setGoals] = useState<Goal[]>(INITIAL_GOALS);
+  const [goals, setGoals] = useState<Goal[]>([]);
 
   useEffect(() => {
     if (session) {
@@ -144,7 +141,7 @@ const App: React.FC = () => {
       setIsVerified(false);
       setIdentity(INITIAL_IDENTITY);
       setUserStats({ current_streak: 0, best_streak: 0, last_active_date: null, total_milestones: 0, xp: 0 });
-      setGoals(INITIAL_GOALS);
+      setGoals([]);
       setConfessions([]);
       setPilares(INITIAL_PILARES);
       setShowLanding(true);
@@ -317,6 +314,23 @@ const App: React.FC = () => {
     setActiveSection(AppSection.MENTOR);
   };
 
+  const handleAddGoal = () => {
+    const newGoal: Goal = {
+      id: crypto.randomUUID(),
+      goal_title: 'Nueva Meta de Impacto',
+      target_date: '',
+      sub_tasks: [],
+      progress_percentage: 0
+    };
+    setGoals(prev => [...prev, newGoal]);
+    saveGoal(newGoal);
+  };
+
+  const handleDeleteGoal = (id: string) => {
+    setGoals(prev => prev.filter(g => g.id !== id));
+    deleteGoal(id);
+  };
+
   if (loading) return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center space-y-4 font-sans text-white">
       <Loader2 className="text-[#FFD700] animate-spin" size={48} />
@@ -403,6 +417,8 @@ const App: React.FC = () => {
               saveGoal(g);
             }}
             triggerHaptic={triggerHaptic}
+            onAddGoal={handleAddGoal}
+            onDeleteGoal={handleDeleteGoal}
           />
         )}
         {activeSection === AppSection.MENTOR && <MentorNode identity={identity} confessions={confessions} goals={goals} userStats={userStats} triggerHaptic={triggerHaptic} initialTrigger={mentorTrigger} onTriggerHandled={() => setMentorTrigger(null)} />}
